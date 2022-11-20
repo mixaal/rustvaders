@@ -2,4 +2,4 @@
 
 Rust invaders recall :)
 
-[!rustvaders](rustvaders.png)
+![rustvaders](rustvaders.png)
