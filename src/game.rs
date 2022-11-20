@@ -89,6 +89,7 @@ impl Rustvaders {
         let tc = canvas.texture_creator();
         let mut resources: Vec<(Vec<&Texture>, i32, i32, u32, u32, usize, bool, ResourceType)> = Vec::new();
 
+        // load textures
         let octopus = tc.load_texture("sprites/chobotnice-modra.png").unwrap();
         let alien1 = tc.load_texture("sprites/hopsalek-01-zluty.png").unwrap();
         let alien2 = tc.load_texture("sprites/hopsalek-02-zluty.png").unwrap();
@@ -99,7 +100,7 @@ impl Rustvaders {
         let winner = tc.load_texture("sprites/winner.png").unwrap();
         let looser = tc.load_texture("sprites/looser.png").unwrap();
         
-
+        // setup player, missiles, alien missiles, aliens and final screens
         let canon_x = self.width as i32 / 2;
         self._player_horiz = canon_x;
         let canon_y = (self.height - canon.query().height) as i32;
@@ -132,19 +133,25 @@ impl Rustvaders {
         resources.push((vec![&winner], self.width as i32 / 2, self.height as i32 / 2, winner.query().width, winner.query().height, 0, false, ResourceType::WinPicture));
         resources.push((vec![&looser], self.width as i32 / 2, self.height as i32 / 2, looser.query().width, looser.query().height, 0, false, ResourceType::LosePicture));
 
+
+        // main loop
         let mut now = Instant::now();
         'running: loop {
             let start = Instant::now();
-            // Handle events
+            // handle keyboard events
             if self.keyhandler(&mut event_pump) {
                 break 'running;
             }
-
+            // clear before drawing
             sdl_clear(&mut canvas, 0, 0, 0);
+
+            // update game, if true returned, game ends
             if self.update(&mut resources, now.elapsed().as_secs_f32()) {
                 // we either lost or won the game
                 break 'running;
             }
+
+            // finally draw the game and maintain fps
             self.draw(&mut canvas, &mut resources);
             canvas.present();
             now = Instant::now();
@@ -159,18 +166,11 @@ impl Rustvaders {
         // (texture, x, y, animation_idx, visible)
     ) {
 
-        if self._player_won {
-            
-           
-        }
-
-        if self._aliens_won {
-           
-        }
-
+        // iterate through all resources and draw them if visible
         for r in resources.iter_mut() {
             let res_type = &r.7;
 
+            // first decide on final screens (game ends)
             let end_of_game = self._player_won || self._aliens_won;
             if end_of_game {
                 r.6 = false;
@@ -182,6 +182,7 @@ impl Rustvaders {
                 }
             }
 
+            // else draw all game resources
             if r.6 { // visible
                 if self._animate {
                     r.5 += 1; // animation index
