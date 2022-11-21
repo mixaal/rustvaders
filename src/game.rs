@@ -8,33 +8,24 @@ use sdl2::{
     video::Window,
 };
 
-use crate::libsdl::{sdl_clear, sdl_init, sdl_maintain_fps, sdl_render_tex, CollisionBox, handle_collisions};
+use crate::{
+    libsdl::{
+        handle_collisions, sdl_clear, sdl_init, sdl_maintain_fps, sdl_render_tex, CollisionBox,
+    },
+    ALIEN_FIRING_RANGE, ALIEN_MISSILE_RATE, ALIEN_MISSILE_SPEED, ALIEN_VERT_SPEED, ENEMY_COLS,
+    ENEMY_ROWS, FINAL_SCREEN_DUR, FRAME_RATE, MAX_ALIEN_MISSILES, MAX_PLAYER_MISSILES,
+    PLAYER_MISSILE_RATE, PLAYER_MISSILE_SPEED, PLAYER_SPEED,
+};
 
-const FRAME_RATE : u32 = 60; //fps
-
-const ENEMY_ROWS: u32 = 4;
-const ENEMY_COLS: u32 = 10;
-
-const ALIEN_VERT_SPEED: f32 = 12.5;    // falling spped, adjust according to the difficulty : 2.5 should be ok
-const ALIEN_MISSILE_SPEED : i32 = 5;   // missile speed
-const ALIEN_FIRING_RANGE : i32 = 40;   // alien fires when the player is in range - 10 is easier, 40 fires on a too broad range
-const ALIEN_MISSILE_RATE : Duration = Duration::new(0, 1_000_000_000/3); // alien fire rate duration
-
-const PLAYER_SPEED : i32 = 5;          // player horizontal speed
-const PLAYER_MISSILE_SPEED : i32 = 5;  // player missile speed
-const PLAYER_MISSILE_RATE : Duration = Duration::new(0, 1_000_000_000/3); // player fire rate duration
-
-
-const FINAL_SCREEN_DUR : Duration = Duration::new(2, 0);
-
-const MAX_ALIEN_MISSILES: i32 = 8;
-const MAX_PLAYER_MISSILES: i32 = 8;
 #[derive(PartialEq)]
 enum ResourceType {
-    Player, PlayerMissile, AlienMissile, Alien, WinPicture, LosePicture
+    Player,
+    PlayerMissile,
+    AlienMissile,
+    Alien,
+    WinPicture,
+    LosePicture,
 }
-
-
 
 pub struct Rustvaders {
     width: u32,
@@ -87,7 +78,8 @@ impl Rustvaders {
         let (mut event_pump, mut canvas) = sdl_init(self.width, self.height);
 
         let tc = canvas.texture_creator();
-        let mut resources: Vec<(Vec<&Texture>, i32, i32, u32, u32, usize, bool, ResourceType)> = Vec::new();
+        let mut resources: Vec<(Vec<&Texture>, i32, i32, u32, u32, usize, bool, ResourceType)> =
+            Vec::new();
 
         // load textures
         let octopus = tc.load_texture("sprites/chobotnice-modra.png").unwrap();
@@ -99,18 +91,45 @@ impl Rustvaders {
         let alien_light = tc.load_texture("sprites/blesk-zluty.png").unwrap();
         let winner = tc.load_texture("sprites/winner.png").unwrap();
         let looser = tc.load_texture("sprites/looser.png").unwrap();
-        
+
         // setup player, missiles, alien missiles, aliens and final screens
         let canon_x = self.width as i32 / 2;
         self._player_horiz = canon_x;
         let canon_y = (self.height - canon.query().height) as i32;
         self._player_vert = canon_y;
-        resources.push((vec![&canon], canon_x, canon_y, canon.query().width, canon.query().height, 0, true, ResourceType::Player));
+        resources.push((
+            vec![&canon],
+            canon_x,
+            canon_y,
+            canon.query().width,
+            canon.query().height,
+            0,
+            true,
+            ResourceType::Player,
+        ));
         for _ in 0..MAX_PLAYER_MISSILES {
-            resources.push((vec![&missile], 0, canon_y, missile.query().width, missile.query().height, 0, false, ResourceType::PlayerMissile));
+            resources.push((
+                vec![&missile],
+                0,
+                canon_y,
+                missile.query().width,
+                missile.query().height,
+                0,
+                false,
+                ResourceType::PlayerMissile,
+            ));
         }
         for _ in 0..MAX_ALIEN_MISSILES {
-            resources.push((vec![&alien_light], 0, 0, missile.query().width, missile.query().height, 0, false, ResourceType::AlienMissile));
+            resources.push((
+                vec![&alien_light],
+                0,
+                0,
+                missile.query().width,
+                missile.query().height,
+                0,
+                false,
+                ResourceType::AlienMissile,
+            ));
         }
         let p_dy: i32 = 10;
         let p_dx: i32 = (self.width / (ENEMY_COLS + 1)) as i32;
@@ -120,9 +139,21 @@ impl Rustvaders {
             let mut px = p_dx;
             for _ in 0..ENEMY_COLS {
                 let (t, w, h) = match row {
-                    1 => (vec![&octopus], octopus.query().width, octopus.query().height),
-                    ENEMY_ROWS => (vec![&jelly_fish], jelly_fish.query().width, jelly_fish.query().height),
-                    _ => (vec![&alien1, &alien2], alien1.query().width, alien1.query().height),
+                    1 => (
+                        vec![&octopus],
+                        octopus.query().width,
+                        octopus.query().height,
+                    ),
+                    ENEMY_ROWS => (
+                        vec![&jelly_fish],
+                        jelly_fish.query().width,
+                        jelly_fish.query().height,
+                    ),
+                    _ => (
+                        vec![&alien1, &alien2],
+                        alien1.query().width,
+                        alien1.query().height,
+                    ),
                 };
                 resources.push((t, px, py, w, h, 0, true, ResourceType::Alien));
                 px += p_dx;
@@ -130,9 +161,26 @@ impl Rustvaders {
             py += p_dy + alien1.query().height as i32;
         }
 
-        resources.push((vec![&winner], self.width as i32 / 2, self.height as i32 / 2, winner.query().width, winner.query().height, 0, false, ResourceType::WinPicture));
-        resources.push((vec![&looser], self.width as i32 / 2, self.height as i32 / 2, looser.query().width, looser.query().height, 0, false, ResourceType::LosePicture));
-
+        resources.push((
+            vec![&winner],
+            self.width as i32 / 2,
+            self.height as i32 / 2,
+            winner.query().width,
+            winner.query().height,
+            0,
+            false,
+            ResourceType::WinPicture,
+        ));
+        resources.push((
+            vec![&looser],
+            self.width as i32 / 2,
+            self.height as i32 / 2,
+            looser.query().width,
+            looser.query().height,
+            0,
+            false,
+            ResourceType::LosePicture,
+        ));
 
         // main loop
         let mut now = Instant::now();
@@ -165,7 +213,6 @@ impl Rustvaders {
         resources: &mut Vec<(Vec<&Texture>, i32, i32, u32, u32, usize, bool, ResourceType)>,
         // (texture, x, y, animation_idx, visible)
     ) {
-
         // iterate through all resources and draw them if visible
         for r in resources.iter_mut() {
             let res_type = &r.7;
@@ -174,16 +221,17 @@ impl Rustvaders {
             let end_of_game = self._player_won || self._aliens_won;
             if end_of_game {
                 r.6 = false;
-                if self._player_won && res_type==&ResourceType::WinPicture {
+                if self._player_won && res_type == &ResourceType::WinPicture {
                     r.6 = true;
                 }
-                if self._aliens_won && res_type==&ResourceType::LosePicture {
+                if self._aliens_won && res_type == &ResourceType::LosePicture {
                     r.6 = true;
                 }
             }
 
             // else draw all game resources
-            if r.6 { // visible
+            if r.6 {
+                // visible
                 if self._animate {
                     r.5 += 1; // animation index
                     if r.5 >= r.0.len() {
@@ -206,10 +254,9 @@ impl Rustvaders {
         self: &mut Self,
         resources: &mut Vec<(Vec<&Texture>, i32, i32, u32, u32, usize, bool, ResourceType)>,
         dt: f32,
-    )-> bool {
+    ) -> bool {
         // game end - wait a bit with final screen rendering
         if self._player_won || self._aliens_won {
-    
             if self._game_end.is_some() && self._game_end.unwrap().elapsed() > FINAL_SCREEN_DUR {
                 // quit the game
                 self._game_quit = true;
@@ -225,7 +272,7 @@ impl Rustvaders {
             self._animate = false;
         }
 
-        // aliens adjust vertical offset: they are falling down 
+        // aliens adjust vertical offset: they are falling down
         self._alien_y_off += self._alien_vert_speed * dt;
 
         // player wants to move right
@@ -252,16 +299,17 @@ impl Rustvaders {
         }
 
         // decide if player fires, fire event from keyboard and check for missile rate !
-        let player_fires = self._player_fire && self._player_last_fire.elapsed() > PLAYER_MISSILE_RATE;
+        let player_fires =
+            self._player_fire && self._player_last_fire.elapsed() > PLAYER_MISSILE_RATE;
         if player_fires {
             self._player_last_fire = Instant::now();
         }
 
         let mut missiles_col: Vec<CollisionBox> = Vec::new();
-        let mut aliens_col : Vec<CollisionBox> = Vec::new();
+        let mut aliens_col: Vec<CollisionBox> = Vec::new();
         let mut alien_missiles_col: Vec<CollisionBox> = Vec::new();
         let mut players_col: Vec<CollisionBox> = Vec::new();
-        let mut r_idx : usize = 0;
+        let mut r_idx: usize = 0;
         let mut alien_max_y = 0;
         let mut alien_potential_firing_position = (0, 0);
         for r in resources.iter_mut() {
@@ -279,7 +327,14 @@ impl Rustvaders {
             if res_type == &ResourceType::Player && visible {
                 r.1 = self._player_horiz;
                 r.2 = self._player_vert;
-                players_col.push(CollisionBox{index: r_idx, active:true, min_x: x-w2, min_y: y-h2, max_x: x+w2, max_y: y+h2});
+                players_col.push(CollisionBox {
+                    index: r_idx,
+                    active: true,
+                    min_x: x - w2,
+                    min_y: y - h2,
+                    max_x: x + w2,
+                    max_y: y + h2,
+                });
             }
             // update all visible player missiles
             if res_type == &ResourceType::PlayerMissile && visible {
@@ -287,8 +342,15 @@ impl Rustvaders {
                 if r.2 < 0 {
                     r.6 = false; // dead
                 }
-                
-                missiles_col.push(CollisionBox{index: r_idx, active:true, min_x: x-w2, min_y: y-h2, max_x: x+w2, max_y: y+h2});
+
+                missiles_col.push(CollisionBox {
+                    index: r_idx,
+                    active: true,
+                    min_x: x - w2,
+                    min_y: y - h2,
+                    max_x: x + w2,
+                    max_y: y + h2,
+                });
             }
 
             // update all visible alien missiles
@@ -297,17 +359,31 @@ impl Rustvaders {
                 if r.2 > self.height as i32 {
                     r.6 = false; // dead
                 }
-                
-                alien_missiles_col.push(CollisionBox{index: r_idx, active:true, min_x: x-w2, min_y: y-h2, max_x: x+w2, max_y: y+h2});
+
+                alien_missiles_col.push(CollisionBox {
+                    index: r_idx,
+                    active: true,
+                    min_x: x - w2,
+                    min_y: y - h2,
+                    max_x: x + w2,
+                    max_y: y + h2,
+                });
             }
-            
+
             // collisions for remaining aliens, decide on firing
             if res_type == &ResourceType::Alien && visible {
-                aliens_col.push(CollisionBox{index: r_idx, active:true, min_x: x-w2, min_y: y-h2, max_x: x+w2, max_y: y+h2});
-                if y+h2 > alien_max_y {
+                aliens_col.push(CollisionBox {
+                    index: r_idx,
+                    active: true,
+                    min_x: x - w2,
+                    min_y: y - h2,
+                    max_x: x + w2,
+                    max_y: y + h2,
+                });
+                if y + h2 > alien_max_y {
                     alien_max_y = y + h2;
                 }
-                if (x - self._player_horiz).abs() < ALIEN_FIRING_RANGE { 
+                if (x - self._player_horiz).abs() < ALIEN_FIRING_RANGE {
                     alien_potential_firing_position = (x, y);
                 }
             }
@@ -344,9 +420,9 @@ impl Rustvaders {
             resources[c.1].6 = false; // player dead
         }
 
-        if player_fires  {
-            // find first free player missile slot and 
-            for r in resources.iter_mut() { 
+        if player_fires {
+            // find first free player missile slot and
+            for r in resources.iter_mut() {
                 let res_type = &r.7;
                 let visible = r.6;
                 if res_type == &ResourceType::PlayerMissile && !visible {
@@ -359,8 +435,8 @@ impl Rustvaders {
             }
         }
 
-        if alien_fires && alien_potential_firing_position.0 > 0  {
-            for r in resources.iter_mut() { 
+        if alien_fires && alien_potential_firing_position.0 > 0 {
+            for r in resources.iter_mut() {
                 let res_type = &r.7;
                 let visible = r.6;
                 if res_type == &ResourceType::AlienMissile && !visible {
@@ -382,8 +458,6 @@ impl Rustvaders {
 
         self._game_quit
     }
-
-    
 
     fn keyhandler(self: &mut Self, event_pump: &mut sdl2::EventPump) -> bool {
         for event in event_pump.poll_iter() {

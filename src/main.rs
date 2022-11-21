@@ -1,16 +1,7 @@
-
-use game::Rustvaders;
-
-pub mod libsdl;
-pub mod game;
-
-
-
-
+use rustvaders::game::Rustvaders;
 
 fn main() {
-   
-   let mut game = Rustvaders::new(800, 600);
-        
+    let mut game = Rustvaders::new(800, 600);
+
     game.mainloop();
 }

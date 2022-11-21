@@ -4,7 +4,7 @@ use sdl2::{
     pixels::Color,
     rect::{Point, Rect},
     render::{Canvas, Texture},
-    video::{Window},
+    video::Window,
     EventPump,
 };
 
@@ -52,10 +52,10 @@ pub fn sdl_clear(canvas: &mut Canvas<Window>, r: u8, g: u8, b: u8) {
 pub fn sdl_maintain_fps(start: Instant, fps: u32) {
     let frame_duration = Duration::new(0, 1_000_000_000u32 / fps);
     let elapsed = start.elapsed();
-            match frame_duration.checked_sub(elapsed) {
-                Some(dt) => ::std::thread::sleep(dt),
-                None => {}
-            }
+    match frame_duration.checked_sub(elapsed) {
+        Some(dt) => ::std::thread::sleep(dt),
+        None => {}
+    }
 }
 
 pub struct CollisionBox {
@@ -67,7 +67,10 @@ pub struct CollisionBox {
     pub max_y: i32,
 }
 
-pub fn handle_collisions(col1: &mut Vec<CollisionBox>, col2: &mut Vec<CollisionBox>) -> Vec<(usize,usize)> {
+pub fn handle_collisions(
+    col1: &mut Vec<CollisionBox>,
+    col2: &mut Vec<CollisionBox>,
+) -> Vec<(usize, usize)> {
     // println!("--------------handle_collisions-------------------");
     let mut out: Vec<(usize, usize)> = Vec::new();
     for c1 in col1.iter_mut() {
@@ -76,14 +79,15 @@ pub fn handle_collisions(col1: &mut Vec<CollisionBox>, col2: &mut Vec<CollisionB
                 continue;
             }
 
-            
-
             //rect1.x < rect2.x + rect2.w &&
             //rect1.x + rect1.w > rect2.x &&
             //rect1.y < rect2.y + rect2.h &&
             //rect1.h + rect1.y > rect2.y
-            let overlap = c1.min_x < c2.max_x && c1.max_x > c2.min_x && c1.min_y < c2.max_y && c1.max_y > c2.min_y;
-            
+            let overlap = c1.min_x < c2.max_x
+                && c1.max_x > c2.min_x
+                && c1.min_y < c2.max_y
+                && c1.max_y > c2.min_y;
+
             if overlap {
                 // println!("c1.a({})={} c2.a({})={} overlap={}", c1.index, c1.active, c2.index, c2.active, overlap);
                 c1.active = false;
