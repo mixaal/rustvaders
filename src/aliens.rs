@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use sdl2::{render::Canvas, video::Window};
 
-use crate::{sdl::sdl_load_textures, core::GameObject, ALIEN_VERT_SPEED, ALIEN_MISSILE_SPEED, timer::GameTimer, ALIEN_FIRING_RANGE, ALIEN_MISSILE_RATE, player::Player};
+use crate::{sdl::sdl_load_textures, core::GameObject, ALIEN_VERT_SPEED, player::Player};
 
 pub enum AlienType {
     Octopus,

@@ -1,4 +1,4 @@
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 use sdl2::{event::Event, keyboard::Keycode, render::Canvas, video::Window};
 
@@ -6,11 +6,10 @@ use crate::{
     aliens::{Alien, AlienMissile, AlienType},
     core::Drawable,
     player::{Player, PlayerMissile},
-    sdl::{handle_collisions, sdl_clear, sdl_init, sdl_maintain_fps, sdl_render_tex, CollisionBox},
+    sdl::{sdl_clear, sdl_init, sdl_maintain_fps},
     timer::GameTimer,
-    ALIEN_FIRING_RANGE, ALIEN_MISSILE_RATE, ALIEN_MISSILE_SPEED, ALIEN_VERT_SPEED, ENEMY_COLS,
-    ENEMY_ROWS, FINAL_SCREEN_DUR, FRAME_RATE, MAX_ALIEN_MISSILES, MAX_PLAYER_MISSILES,
-    PLAYER_MISSILE_RATE, PLAYER_MISSILE_SPEED, PLAYER_SPEED,
+    ALIEN_FIRING_RANGE, ALIEN_MISSILE_RATE, ALIEN_MISSILE_SPEED, ENEMY_COLS, ENEMY_ROWS,
+    FRAME_RATE, MAX_ALIEN_MISSILES, MAX_PLAYER_MISSILES, PLAYER_MISSILE_RATE, PLAYER_MISSILE_SPEED,
 };
 
 pub struct Rustvaders {
@@ -33,8 +32,8 @@ pub struct Rustvaders {
 impl Rustvaders {
     pub fn new(width: u32, height: u32) -> Self {
         Self {
-            width: width,
-            height: height,
+            width,
+            height,
             fps: FRAME_RATE,
             _players: Vec::new(),
             _aliens: Vec::new(),
@@ -56,7 +55,6 @@ impl Rustvaders {
         self._players
             .push(Player::new(&canvas, self.width, self.height));
 
-        let p_dy: i32 = 10;
         let p_dx: i32 = (self.width / (ENEMY_COLS + 1)) as i32;
 
         let mut py: i32 = 64;
@@ -127,7 +125,7 @@ impl Rustvaders {
         };
         let mut px = 0;
         let has_player = player.is_some();
-        if  has_player {
+        if has_player {
             let p = player.unwrap();
             px = p.render.x;
             if self._player_left {
@@ -141,17 +139,15 @@ impl Rustvaders {
 
         self._player_fire_timer.update();
 
-        if has_player && self._player_fires {
-            if self._player_fire_timer.ready {
-                self._player_fire_timer.reset();
+        if has_player && self._player_fires && self._player_fire_timer.ready {
+            self._player_fire_timer.reset();
 
-                if self._player_missiles.len() < MAX_PLAYER_MISSILES {
-                    self._player_missiles.push(PlayerMissile::new(
-                        canvas,
-                        PLAYER_MISSILE_SPEED as f32,
-                        &self._players[0],
-                    ));
-                }
+            if self._player_missiles.len() < MAX_PLAYER_MISSILES {
+                self._player_missiles.push(PlayerMissile::new(
+                    canvas,
+                    PLAYER_MISSILE_SPEED as f32,
+                    &self._players[0],
+                ));
             }
         }
 
@@ -202,7 +198,7 @@ impl Rustvaders {
         self._aliens.retain(|p| p.alive());
     }
 
-    fn keyhandler(self: &mut Self, event_pump: &mut sdl2::EventPump) -> bool {
+    fn keyhandler(&mut self, event_pump: &mut sdl2::EventPump) -> bool {
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } => {
@@ -275,6 +271,6 @@ impl Rustvaders {
                 _ => {}
             }
         }
-        return false;
+        false
     }
 }

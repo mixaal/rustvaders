@@ -34,12 +34,8 @@ pub fn sdl_init(width: u32, height: u32) -> (EventPump, Canvas<Window>) {
 pub fn sdl_load_textures(canvas: &Canvas<Window>, images: Vec<String>) -> Vec<Texture> {
     let mut textures: Vec<Texture> = Vec::new();
     let tc = canvas.texture_creator();
-    let mut w = 0;
-    let mut h = 0;
     for img in images.iter() {
         let tex = tc.load_texture(img).unwrap();
-        w = tex.query().width;
-        h = tex.query().height;
         textures.push(tex);
     }
     textures
@@ -80,37 +76,4 @@ pub struct CollisionBox {
     pub min_y: i32,
     pub max_x: i32,
     pub max_y: i32,
-}
-
-pub fn handle_collisions(
-    col1: &mut Vec<CollisionBox>,
-    col2: &mut Vec<CollisionBox>,
-) -> Vec<(usize, usize)> {
-    // println!("--------------handle_collisions-------------------");
-    let mut out: Vec<(usize, usize)> = Vec::new();
-    for c1 in col1.iter_mut() {
-        for c2 in col2.iter_mut() {
-            if !c1.active || !c2.active {
-                continue;
-            }
-
-            //rect1.x < rect2.x + rect2.w &&
-            //rect1.x + rect1.w > rect2.x &&
-            //rect1.y < rect2.y + rect2.h &&
-            //rect1.h + rect1.y > rect2.y
-            let overlap = c1.min_x < c2.max_x
-                && c1.max_x > c2.min_x
-                && c1.min_y < c2.max_y
-                && c1.max_y > c2.min_y;
-
-            if overlap {
-                // println!("c1.a({})={} c2.a({})={} overlap={}", c1.index, c1.active, c2.index, c2.active, overlap);
-                c1.active = false;
-                c2.active = false;
-                out.push((c1.index, c2.index));
-            }
-        }
-    }
-
-    out
 }

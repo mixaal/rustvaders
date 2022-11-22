@@ -22,7 +22,7 @@ const PLAYER_SPEED: i32 = 5; // player horizontal speed
 const PLAYER_MISSILE_SPEED: i32 = 500; // player missile speed
 const PLAYER_MISSILE_RATE: Duration = Duration::from_millis(330); // player fire rate duration
 
-const FINAL_SCREEN_DUR: Duration = Duration::new(2, 0);
+// const FINAL_SCREEN_DUR: Duration = Duration::new(2, 0);
 
 const MAX_ALIEN_MISSILES: usize = 8;
 const MAX_PLAYER_MISSILES: usize = 8;

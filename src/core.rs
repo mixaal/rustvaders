@@ -33,7 +33,7 @@ pub struct GameObject {
 impl GameObject {
     pub fn new(textures: Vec<Texture>, x: i32, y: i32, alive: bool) -> Self {
         let texno = textures.len();
-        let has_tex = textures.len() > 0;
+        let has_tex = !textures.is_empty();
         let w = if has_tex {
             textures[0].query().width
         } else {
@@ -105,7 +105,7 @@ impl Drawable for GameObject {
     fn draw(&mut self, canvas: &mut Canvas<Window>) {
         if self.alive {
             let tex = &self.textures[self._anim_idx];
-            sdl_render_tex(canvas, &tex, self.x, self.y);
+            sdl_render_tex(canvas, tex, self.x, self.y);
         }
     }
 }
