@@ -1,6 +1,7 @@
 use std::time::{Duration, Instant};
 
 use sdl2::{
+    image::LoadTexture,
     pixels::Color,
     rect::{Point, Rect},
     render::{Canvas, Texture},
@@ -28,6 +29,20 @@ pub fn sdl_init(width: u32, height: u32) -> (EventPump, Canvas<Window>) {
     canvas.present();
     let event_pump = sdl_context.event_pump().unwrap();
     (event_pump, canvas)
+}
+
+pub fn sdl_load_textures(canvas: &Canvas<Window>, images: Vec<String>) -> Vec<Texture> {
+    let mut textures: Vec<Texture> = Vec::new();
+    let tc = canvas.texture_creator();
+    let mut w = 0;
+    let mut h = 0;
+    for img in images.iter() {
+        let tex = tc.load_texture(img).unwrap();
+        w = tex.query().width;
+        h = tex.query().height;
+        textures.push(tex);
+    }
+    textures
 }
 
 pub fn sdl_render_tex(canvas: &mut Canvas<Window>, texture: &Texture, x: i32, y: i32) {
