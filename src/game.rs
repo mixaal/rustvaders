@@ -4,6 +4,7 @@ use sdl2::{event::Event, keyboard::Keycode, render::Canvas, video::Window};
 
 use crate::{
     aliens::{Alien, AlienMissile, AlienType},
+    background::Background,
     core::Drawable,
     player::{Player, PlayerMissile},
     screens::{Screen, ScreenType},
@@ -17,6 +18,8 @@ pub struct Rustvaders {
     width: u32,
     height: u32,
     fps: u32,
+    // bg
+    _bg: Vec<Background>,
     // game objects
     _players: Vec<Player>,
     _aliens: Vec<Alien>,
@@ -38,6 +41,7 @@ impl Rustvaders {
             width,
             height,
             fps: FRAME_RATE,
+            _bg: Vec::new(),
             _players: Vec::new(),
             _aliens: Vec::new(),
             _player_missiles: Vec::new(),
@@ -96,6 +100,8 @@ impl Rustvaders {
     }
 
     fn init(&mut self, canvas: &Canvas<Window>) {
+        self._bg
+            .push(Background::new(canvas, self.width, self.height));
         self._players
             .push(Player::new(canvas, self.width, self.height));
 
@@ -122,6 +128,10 @@ impl Rustvaders {
         canvas: &mut Canvas<Window>,
         // (texture, x, y, animation_idx, visible)
     ) {
+        for b in self._bg.iter_mut() {
+            b.render.draw(canvas);
+        }
+
         // iterate through all resources and draw them if visible
         for p in self._players.iter_mut() {
             p.render.draw(canvas);
@@ -221,6 +231,10 @@ impl Rustvaders {
 
         self.remove_objects();
 
+        for b in self._bg.iter_mut() {
+            b.update(dt);
+        }
+
         if self.aliens_won() {
             self._final_screen.push(Screen::new(
                 canvas,
@@ -243,7 +257,7 @@ impl Rustvaders {
     fn aliens_won(&self) -> bool {
         let mut alien_won = false;
         for alien in self._aliens.iter() {
-            if alien.get_y() > 9 * self.width as i32 / 10 {
+            if alien.get_y() > 9 * self.height as i32 / 10 {
                 alien_won = true;
                 break;
             }

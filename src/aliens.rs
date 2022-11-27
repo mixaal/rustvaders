@@ -67,7 +67,7 @@ impl AlienMissile {
         Self {
             speed,
             render: GameObject::new(
-                sdl_load_textures(canvas, vec![String::from("sprites/blesk-modry.png")]),
+                sdl_load_textures(canvas, vec![String::from("sprites/blesk-zluty.png")]),
                 position.0,
                 position.1,
                 true,

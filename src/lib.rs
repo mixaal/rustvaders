@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 pub mod aliens;
+pub mod background;
 pub mod core;
 pub mod game;
 pub mod player;
