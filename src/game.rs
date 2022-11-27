@@ -9,6 +9,7 @@ use crate::{
     player::{Player, PlayerMissile},
     screens::{Screen, ScreenType},
     sdl::{sdl_clear, sdl_init, sdl_maintain_fps},
+    sfx::Sfx,
     timer::GameTimer,
     ALIEN_FIRING_RANGE, ALIEN_MISSILE_RATE, ALIEN_MISSILE_SPEED, ENEMY_COLS, ENEMY_ROWS,
     FRAME_RATE, MAX_ALIEN_MISSILES, MAX_PLAYER_MISSILES, PLAYER_MISSILE_RATE, PLAYER_MISSILE_SPEED,
@@ -33,6 +34,8 @@ pub struct Rustvaders {
     _alien_fire_timer: GameTimer,
     // win conditions
     _final_screen: Vec<Screen>,
+    // sfx
+    _mixer: Sfx,
 }
 
 impl Rustvaders {
@@ -52,6 +55,7 @@ impl Rustvaders {
             _player_fire_timer: GameTimer::new(PLAYER_MISSILE_RATE),
             _alien_fire_timer: GameTimer::new(ALIEN_MISSILE_RATE),
             _final_screen: Vec::new(),
+            _mixer: Sfx::new(),
         }
     }
 
@@ -66,6 +70,8 @@ impl Rustvaders {
     pub fn mainloop(&mut self) {
         let (mut event_pump, mut canvas) = sdl_init(self.width, self.height);
         let mut playing = true;
+
+        self._mixer.bgm();
 
         while playing {
             // reset game state
@@ -185,6 +191,7 @@ impl Rustvaders {
             self._player_fire_timer.reset();
 
             if self._player_missiles.len() < MAX_PLAYER_MISSILES {
+                self._mixer.laser();
                 self._player_missiles.push(PlayerMissile::new(
                     canvas,
                     PLAYER_MISSILE_SPEED as f32,
@@ -208,6 +215,7 @@ impl Rustvaders {
             && self._alien_missiles.len() < MAX_ALIEN_MISSILES
         {
             self._alien_fire_timer.reset();
+            self._mixer.alien_missile();
             self._alien_missiles.push(AlienMissile::new(
                 canvas,
                 ALIEN_MISSILE_SPEED as f32,

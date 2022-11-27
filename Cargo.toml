@@ -10,6 +10,9 @@ edition = "2021"
 # rusty_audio = "1.2"
 # rusty_time = "0.11"
 
+[dependencies]
+rusty_audio = "1.4.0"
+
 [dependencies.sdl2]
 version = "0.32.1"
 features = ["image", "unsafe_textures"]

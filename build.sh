@@ -5,6 +5,7 @@ cargo build --release --target x86_64-pc-windows-gnu
 # create tarball for windows
 rm -f rustvaders-x86_64-pc-windows.tar.gz
 cp -av sprites target/x86_64-pc-windows-gnu/release
+cp -av sfx target/x86_64-pc-windows-gnu/release
 #cp -av  sdl-build/SDL2*/x86_64-w64-mingw32/lib/*dll* target/x86_64-pc-windows-gnu/release/
 
 

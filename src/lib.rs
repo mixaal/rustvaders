@@ -7,6 +7,7 @@ pub mod game;
 pub mod player;
 pub mod screens;
 pub mod sdl;
+pub mod sfx;
 pub mod timer;
 
 const FRAME_RATE: u32 = 60; //fps
