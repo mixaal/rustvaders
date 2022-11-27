@@ -97,7 +97,7 @@ impl Rustvaders {
 
     fn init(&mut self, canvas: &Canvas<Window>) {
         self._players
-            .push(Player::new(&canvas, self.width, self.height));
+            .push(Player::new(canvas, self.width, self.height));
 
         let p_dx: i32 = (self.width / (ENEMY_COLS + 1)) as i32;
 
@@ -111,7 +111,7 @@ impl Rustvaders {
                     _ => AlienType::Jumper,
                 };
                 self._aliens
-                    .push(Alien::new(&canvas, alien_type, px as f32, py as f32));
+                    .push(Alien::new(canvas, alien_type, px as f32, py as f32));
                 px += p_dx;
             }
             py += 64;
@@ -223,7 +223,7 @@ impl Rustvaders {
 
         if self.aliens_won() {
             self._final_screen.push(Screen::new(
-                &canvas,
+                canvas,
                 self.width,
                 self.height,
                 ScreenType::Lose,
@@ -231,7 +231,7 @@ impl Rustvaders {
         }
         if self._aliens.is_empty() {
             self._final_screen.push(Screen::new(
-                &canvas,
+                canvas,
                 self.width,
                 self.height,
                 ScreenType::Win,
