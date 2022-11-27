@@ -15,6 +15,7 @@ pub fn sdl_init(width: u32, height: u32) -> (EventPump, Canvas<Window>) {
 
     let window = video_subsystem
         .window("Rustvaders", width, height)
+        .fullscreen()
         .position_centered()
         .build()
         .expect("could not initialize video subsystem");
