@@ -18,7 +18,7 @@ const ALIEN_MISSILE_SPEED: i32 = 500; // missile speed
 const ALIEN_FIRING_RANGE: i32 = 40; // alien fires when the player is in range - 10 is easier, 40 fires on a too broad range
 const ALIEN_MISSILE_RATE: Duration = Duration::from_millis(330); // alien fire rate duration
 
-const PLAYER_SPEED: i32 = 5; // player horizontal speed
+const PLAYER_SPEED: f32 = 600.0; // player horizontal speed
 const PLAYER_MISSILE_SPEED: i32 = 500; // player missile speed
 const PLAYER_MISSILE_RATE: Duration = Duration::from_millis(330); // player fire rate duration
 

@@ -5,6 +5,7 @@ use crate::{aliens::Alien, core::GameObject, sdl::sdl_load_textures, PLAYER_SPEE
 pub struct Player {
     pub score: u32,
     pub render: GameObject,
+    _horiz_pos: f32,
     _scr_w: u32,
 }
 
@@ -22,6 +23,7 @@ impl Player {
         Self {
             score: 0,
             render: o,
+            _horiz_pos: scr_width as f32 / 2.0,
             _scr_w: scr_width,
         }
     }
@@ -30,19 +32,21 @@ impl Player {
         self.render.alive
     }
 
-    pub fn move_right(&mut self) {
-        self.render.x += PLAYER_SPEED;
-        if self.render.x > self._scr_w as i32 {
-            self.render.x = 0;
+    pub fn move_right(&mut self, dt: f32) {
+        self._horiz_pos += PLAYER_SPEED * dt;
+        if self._horiz_pos > self._scr_w as f32 {
+            self._horiz_pos = 0.0;
         }
+        self.render.x = self._horiz_pos as i32;
         self.render.update_collision_box();
     }
 
-    pub fn move_left(&mut self) {
-        self.render.x -= PLAYER_SPEED;
-        if self.render.x < 0 {
-            self.render.x = self._scr_w as i32;
+    pub fn move_left(&mut self, dt: f32) {
+        self._horiz_pos -= PLAYER_SPEED * dt;
+        if self._horiz_pos < 0.0 {
+            self._horiz_pos = self._scr_w as f32;
         }
+        self.render.x = self._horiz_pos as i32;
         self.render.update_collision_box();
     }
 

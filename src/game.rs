@@ -161,11 +161,11 @@ impl Rustvaders {
             let p = player.unwrap();
             px = p.render.x;
             if self._player_left {
-                p.move_left();
+                p.move_left(dt);
             }
 
             if self._player_right {
-                p.move_right();
+                p.move_right(dt);
             }
         }
 
