@@ -12,4 +12,4 @@ edition = "2021"
 
 [dependencies.sdl2]
 version = "0.32.1"
-features = ["image","ttf", "gfx", "unsafe_textures"]
+features = ["image", "unsafe_textures"]
