@@ -1,6 +1,6 @@
 use sdl2::{render::Canvas, video::Window};
 
-use crate::{sdl::sdl_load_textures, core::GameObject, PLAYER_SPEED, aliens::Alien};
+use crate::{aliens::Alien, core::GameObject, sdl::sdl_load_textures, PLAYER_SPEED};
 
 pub struct Player {
     pub score: u32,
@@ -74,7 +74,7 @@ impl PlayerMissile {
                 player.get_y(),
                 true,
             ),
-            _vert: player.get_y() as f32, 
+            _vert: player.get_y() as f32,
         }
     }
 

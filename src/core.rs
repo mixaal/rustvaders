@@ -91,13 +91,14 @@ impl GameObject {
 
     pub fn resolve_collision(&mut self, other: &mut GameObject) -> bool {
         if !self.alive {
-            return  false;
+            return false;
         }
 
         if !other.alive {
-            return  false;
+            return false;
         }
-        self._collision_box.resolve_collision(&mut other._collision_box)
+        self._collision_box
+            .resolve_collision(&mut other._collision_box)
     }
 }
 
@@ -122,9 +123,14 @@ pub struct CollisionBox {
 impl CollisionBox {
     pub fn new(x: i32, y: i32, w: u32, h: u32) -> Self {
         let w2 = w as i32 / 2;
-        let h2 = h as i32 /  2;
+        let h2 = h as i32 / 2;
         Self {
-            min_x: x - w2, min_y: y - h2, max_x: x + w2, max_y: y + h2, _w2: w2, _h2: h2,
+            min_x: x - w2,
+            min_y: y - h2,
+            max_x: x + w2,
+            max_y: y + h2,
+            _w2: w2,
+            _h2: h2,
         }
     }
 
@@ -136,7 +142,10 @@ impl CollisionBox {
     }
 
     pub fn collides(&self, other: &CollisionBox) -> bool {
-        self.min_x < other.max_x && self.max_x > other.min_x && self.min_y < other.max_y && self.max_y > other.min_y
+        self.min_x < other.max_x
+            && self.max_x > other.min_x
+            && self.min_y < other.max_y
+            && self.max_y > other.min_y
     }
 
     pub fn resolve_collision(&mut self, other: &mut CollisionBox) -> bool {

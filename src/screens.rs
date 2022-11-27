@@ -1,6 +1,6 @@
 use sdl2::{render::Canvas, video::Window};
 
-use crate::{sdl::sdl_load_textures, core::GameObject};
+use crate::{core::GameObject, sdl::sdl_load_textures, timer::GameTimer, FINAL_SCREEN_DUR};
 
 pub enum ScreenType {
     Win,
@@ -9,12 +9,17 @@ pub enum ScreenType {
 
 pub struct Screen {
     score: u32,
-    _obj: GameObject,
+    pub render: GameObject,
+    pub timer: GameTimer,
 }
 
 impl Screen {
-    pub fn new(canvas: &Canvas<Window>, scr_type: ScreenType) -> Self {
-        let (scr_width, scr_height) = canvas.logical_size();
+    pub fn new(
+        canvas: &Canvas<Window>,
+        scr_width: u32,
+        scr_height: u32,
+        scr_type: ScreenType,
+    ) -> Self {
         let (sx, sy) = (scr_width as i32 / 2, scr_height as i32 / 2);
         let o = match scr_type {
             ScreenType::Win => GameObject::new(
@@ -31,6 +36,14 @@ impl Screen {
             ),
         };
 
-        Self { score: 0, _obj: o }
+        Self {
+            score: 0,
+            render: o,
+            timer: GameTimer::new(FINAL_SCREEN_DUR),
+        }
+    }
+
+    pub fn update(&mut self) {
+        self.timer.update();
     }
 }

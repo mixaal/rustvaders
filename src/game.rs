@@ -6,6 +6,7 @@ use crate::{
     aliens::{Alien, AlienMissile, AlienType},
     core::Drawable,
     player::{Player, PlayerMissile},
+    screens::{Screen, ScreenType},
     sdl::{sdl_clear, sdl_init, sdl_maintain_fps},
     timer::GameTimer,
     ALIEN_FIRING_RANGE, ALIEN_MISSILE_RATE, ALIEN_MISSILE_SPEED, ENEMY_COLS, ENEMY_ROWS,
@@ -27,6 +28,8 @@ pub struct Rustvaders {
     _player_fires: bool,
     _player_fire_timer: GameTimer,
     _alien_fire_timer: GameTimer,
+    // win conditions
+    _final_screen: Vec<Screen>,
 }
 
 impl Rustvaders {
@@ -44,14 +47,55 @@ impl Rustvaders {
             _player_fires: false,
             _player_fire_timer: GameTimer::new(PLAYER_MISSILE_RATE),
             _alien_fire_timer: GameTimer::new(ALIEN_MISSILE_RATE),
+            _final_screen: Vec::new(),
         }
+    }
+
+    pub fn reset(&mut self) {
+        self._players = Vec::new();
+        self._aliens = Vec::new();
+        self._player_missiles = Vec::new();
+        self._alien_missiles = Vec::new();
+        self._final_screen = Vec::new();
     }
 
     pub fn mainloop(&mut self) {
         let (mut event_pump, mut canvas) = sdl_init(self.width, self.height);
+        let mut playing = true;
 
-        // setup player, missiles, alien missiles, aliens and final screens
+        while playing {
+            // reset game state
+            self.reset();
+            // setup player, missiles, alien missiles, aliens and final screens
+            self.init(&canvas);
 
+            // main loop
+            let mut now = Instant::now();
+            'running: loop {
+                let start = Instant::now();
+                // handle keyboard events
+                if self.keyhandler(&mut event_pump) {
+                    playing = false;
+                    break 'running;
+                }
+                // clear before drawing
+                sdl_clear(&mut canvas, 0, 0, 0);
+
+                // update game, if true returned, game ends
+                if self.update(&canvas, now.elapsed().as_secs_f32()) {
+                    break 'running;
+                }
+
+                // finally draw the game and maintain fps
+                self.draw(&mut canvas);
+                canvas.present();
+                now = Instant::now();
+                sdl_maintain_fps(start, self.fps);
+            }
+        }
+    }
+
+    fn init(&mut self, canvas: &Canvas<Window>) {
         self._players
             .push(Player::new(&canvas, self.width, self.height));
 
@@ -72,29 +116,7 @@ impl Rustvaders {
             }
             py += 64;
         }
-
-        // main loop
-        let mut now = Instant::now();
-        'running: loop {
-            let start = Instant::now();
-            // handle keyboard events
-            if self.keyhandler(&mut event_pump) {
-                break 'running;
-            }
-            // clear before drawing
-            sdl_clear(&mut canvas, 0, 0, 0);
-
-            // update game, if true returned, game ends
-            self.update(&canvas, now.elapsed().as_secs_f32());
-
-            // finally draw the game and maintain fps
-            self.draw(&mut canvas);
-            canvas.present();
-            now = Instant::now();
-            sdl_maintain_fps(start, self.fps);
-        }
     }
-
     fn draw(
         &mut self,
         canvas: &mut Canvas<Window>,
@@ -116,9 +138,19 @@ impl Rustvaders {
         for m in self._alien_missiles.iter_mut() {
             m.render.draw(canvas);
         }
+
+        for s in self._final_screen.iter_mut() {
+            s.render.draw(canvas);
+        }
     }
 
-    fn update(&mut self, canvas: &Canvas<Window>, dt: f32) {
+    fn update(&mut self, canvas: &Canvas<Window>, dt: f32) -> bool {
+        if !self._final_screen.is_empty() {
+            self._final_screen[0].update();
+
+            return self._final_screen[0].timer.ready;
+        }
+
         let player = match self._players.len() {
             0 => None,
             _ => Some(&mut self._players[0]),
@@ -188,6 +220,35 @@ impl Rustvaders {
         }
 
         self.remove_objects();
+
+        if self.aliens_won() {
+            self._final_screen.push(Screen::new(
+                &canvas,
+                self.width,
+                self.height,
+                ScreenType::Lose,
+            ));
+        }
+        if self._aliens.is_empty() {
+            self._final_screen.push(Screen::new(
+                &canvas,
+                self.width,
+                self.height,
+                ScreenType::Win,
+            ));
+        }
+        false
+    }
+
+    fn aliens_won(&self) -> bool {
+        let mut alien_won = false;
+        for alien in self._aliens.iter() {
+            if alien.get_y() > 9 * self.width as i32 / 10 {
+                alien_won = true;
+                break;
+            }
+        }
+        alien_won || self._players.is_empty()
     }
 
     fn remove_objects(&mut self) {

@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use sdl2::{render::Canvas, video::Window};
 
-use crate::{sdl::sdl_load_textures, core::GameObject, ALIEN_VERT_SPEED, player::Player};
+use crate::{core::GameObject, player::Player, sdl::sdl_load_textures, ALIEN_VERT_SPEED};
 
 pub enum AlienType {
     Octopus,
@@ -12,7 +12,7 @@ pub enum AlienType {
 
 pub struct Alien {
     pub render: GameObject,
-    _vert: f32, 
+    _vert: f32,
 }
 
 impl Alien {
@@ -25,12 +25,12 @@ impl Alien {
                 String::from("sprites/hopsalek-02-zluty.png"),
             ],
         };
-        let mut render = GameObject::new(sdl_load_textures(canvas, images), x as i32, y as i32, true);
+        let mut render =
+            GameObject::new(sdl_load_textures(canvas, images), x as i32, y as i32, true);
         render.anim_speed(Duration::from_millis(500));
         Self {
             render,
             _vert: y as f32,
-            
         }
     }
 
@@ -39,7 +39,6 @@ impl Alien {
         self.render.y = self._vert as i32;
         self.render.update_collision_box();
     }
-
 
     pub fn die(&mut self) {
         self.render.alive = false;
@@ -60,7 +59,7 @@ impl Alien {
 pub struct AlienMissile {
     speed: f32,
     pub render: GameObject,
-    pub _vert: f32, 
+    pub _vert: f32,
 }
 
 impl AlienMissile {
