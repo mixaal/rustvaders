@@ -17,9 +17,13 @@ cd $HOME
 [ -d opt ] || mkdir opt
 
 
+INSTALL_DIR="$HOME/opt/osxcross-10.10"
+ARCH=x86_64-apple-darwin14
+
 # Install crosstools unless already installed
-[ -x $HOME/opt/osxcross/target/bin/x86_64-apple-darwin14-clang ] || {
-  cd opt
+[ -x $INSTALL_DIR/osxcross/target/bin/${ARCH}-clang ] || {
+  mkdir -p $INSTALL_DIR || echo "$INSTALL_DIR already exists"
+  cd $INSTALL_DIR
   git clone https://github.com/tpoechtrager/osxcross
   cd osxcross
   wget -nc https://s3.dockerproject.org/darwin/v2/MacOSX10.10.sdk.tar.xz
@@ -28,20 +32,13 @@ cd $HOME
   cd -
 }
 
+export PATH="$INSTALL_DIR/osxcross/target/bin:$PATH"
 
-# Try the cross compiler out
-$HOME/opt/osxcross/target/bin/x86_64-apple-darwin14-clang --version && {
-  echo "Cross-tools mac os clang is working"
-}
-
-export PATH="$HOME/opt/osxcross/target/bin:$PATH"
-
-export CXX="o64-clang++"
-export CC="o64-clang"
-export LIBTOOL="x86_64-apple-darwin14-libtool"
-export AR="x86_64-apple-darwin14-ar"
-export RANLIB="x86_64-apple-darwin14-ranlib"
-
+export CXX="${ARCH}-clang++"
+export CC="${ARCH}-clang"
+export LIBTOOL="${ARCH}-libtool"
+export AR="${ARCH}-ar"
+export RANLIB="${ARCH}-ranlib"
 
 
 # Download SDL source and cross-compile it for mac os:
@@ -55,7 +52,7 @@ cd $HOME/opt
   cd SDL-release-2*
 
 
-  ./configure --prefix=$HOME/opt/SDL2-macos --host=x86_64-darwin --disable-joystick
+  ./configure --prefix=$HOME/opt/SDL2-macos --host=${ARCH} --disable-joystick
   make
   make install
   cd -
@@ -71,7 +68,7 @@ cd $HOME/opt
   cd SDL_image-release*
 
 
-  ./configure --prefix=$HOME/opt/SDL2-image-macos --host=x86_64-apple-darwin14 --with-sdl-exec-prefix=$HOME/opt/SDL2-macos/
+  ./configure --prefix=$HOME/opt/SDL2-image-macos --host=${ARCH} --with-sdl-exec-prefix=$HOME/opt/SDL2-macos/
    make
    make install
 }
