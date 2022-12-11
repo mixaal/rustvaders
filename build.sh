@@ -2,10 +2,17 @@
 cargo build --release --target x86_64-unknown-linux-gnu
 cargo build --release --target x86_64-pc-windows-gnu
 
+export TARGET_CC=o64-clang # Why I haven't need to setup TARGET_CC for mingw cross-compilation?
+cargo build  --release --target x86_64-apple-darwin
+
 # create tarball for windows
 rm -f rustvaders-x86_64-pc-windows.tar.gz
 cp -av sprites target/x86_64-pc-windows-gnu/release
 cp -av sfx target/x86_64-pc-windows-gnu/release
+
+cp -av sprites target/x86_64-apple-darwin/release
+cp -av sfx target/x86_64-apple-darwin/release
+
 #cp -av  sdl-build/SDL2*/x86_64-w64-mingw32/lib/*dll* target/x86_64-pc-windows-gnu/release/
 
 
@@ -18,3 +25,4 @@ rm -rf *zip rustvaders.d examples build deps .fingerprint inceremental .cargo-lo
 cd -
 tar czvf rustvaders-x86_64-pc-windows.tar.gz target/x86_64-pc-windows-gnu/release
 rm -rf target/x86_64-pc-windows-gnu/release/*
+tar czvf rustvaders-x86_64-apple-darwin.tar.gz target/x86_64-apple-darwin/release
